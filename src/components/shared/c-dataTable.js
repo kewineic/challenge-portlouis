@@ -48,7 +48,7 @@ Vue.component('c-dataTable', {
                           <v-text-field
                             label="Telefone" 
                             v-model="contactData.telephone"
-                            v-mask="inputRules.telephone"
+                            v-mask="masks.telephoneMask"
                             :rules="rules.telephoneRule"
                           />
                           
@@ -62,7 +62,7 @@ Vue.component('c-dataTable', {
                 <v-card-actions>
                   <v-spacer></v-spacer>
                   <v-btn color="blue darken-1" text @click="closeDialog">Close</v-btn>
-                  <v-btn color="blue darken-1" text @click="savedData">Save</v-btn>
+                  <v-btn color="blue darken-1" text @click="saveData">Save</v-btn>
                 </v-card-actions>
 
               </v-card>
@@ -128,8 +128,8 @@ Vue.component('c-dataTable', {
         nameRule: [ v => this.stringValidator(v, /^((\b[A-zÀ-ú']{3,40}\b)\s*){2,}$/g) || "Seu nome deve conter o mínimo de duas palavras com 3 letras cada!" ],
         telephoneRule: [ v => this.stringValidator(v, /^\([0-9]{2}\) [0-9]?[0-9]{4}-[0-9]{4}$/) || "Seu telefone de ser no seguinte formato: (##) (#####-####)"]
       },
-      inputRules: {
-        telephone: '(##) #####-####'
+      masks: {
+        telephoneMask: '(##) #####-####'
       },
       tableTitle: 'Contatos',
       thValues: [
@@ -146,11 +146,13 @@ Vue.component('c-dataTable', {
       return this.isEditingData.value ? 'Dados para editar contato' : 'Dados para novo contato'
     }
   },
-  
-  watch: {
-  },
-  
+
   methods: {
+
+    registerContact() {
+      this.dialog = true;
+      return this.isRegisterData = true;
+    },
 
     closeDialog() { 
       this.isRegisterData = false;
@@ -159,30 +161,21 @@ Vue.component('c-dataTable', {
       return this.dialog = false;
     },
 
-    registerContact() {
-      this.dialog = true;
-      return this.isRegisterData = true;
+    validateDatas() {
+      return this.$refs.form.validate()
     },
 
-    savedData() {
-      if(this.$refs.form.validate()){
-        
+    saveData() {
+      if(this.validateDatas()){
 
         if(this.isEditingData.value) { 
           this.savedContacts.splice(this.isEditingData.index, 1, {...this.contactData});
         } else {
           this.savedContacts.push({...this.contactData});
         }
-        this.isEditingData.value = false;
-        this.isRegisterData = false;
-        this.clearForm();
-        this.submitForm();
-        return this.dialog = false;
-      }
-    },
 
-    submitForm() {
-      
+        this.closeDialog()
+      }
     },
 
     editRowTable(index) {
