@@ -22,7 +22,7 @@
   <script src="/src/directives/RowColor.js"></script>
   <script src="/src/components/layouts/c-header.js"></script>
   <script src="/src/components/layouts/c-footer.js"></script>
-  <script src="/src/components/shared/c-dataTable.js"></script>
+  <script src="/src/components/c-dataTable.js"></script>
   <script src="/src/App.js"></script>
 
 </head>
@@ -37,7 +37,8 @@
       el: '#app',
       store,
       mixin: [
-        getDateMixin
+        getDateMixin,
+        stringValidators
       ],
       vuetify: new Vuetify({
         theme: {

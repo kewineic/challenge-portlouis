@@ -4,16 +4,16 @@ const store = new Vuex.Store({
   },
 
   mutations: {
-    CREATE_CONTACT(state, data) {
-      state.savedContacts.push(data);
+    CREATE_CONTACT({savedContacts}, data) {
+      savedContacts.push(data);
     },
 
-    UPDATE_CONTACT(state, index, data) {
-      state.savedContacts.splice(index, 1, data);
+    UPDATE_CONTACT({savedContacts}, {index, data}) {
+      savedContacts.splice(index, 1, data);
     },
 
-    DELETE_CONTACT(state, index) {
-      state.savedContacts.splice(index, 1);
+    DELETE_CONTACT({savedContacts}, index) {
+      savedContacts.splice(index, 1);
     }
   },
 
@@ -22,8 +22,8 @@ const store = new Vuex.Store({
       commit('CREATE_CONTACT', data);
     },
 
-    updateContactData({ commit }, index, data) {
-      commit('UPDATE_CONTACT', index, data);
+    updateContactData({ commit }, {index, data}) {
+      commit('UPDATE_CONTACT', {index, data});
     },
 
     deleteContactData({ commit }, index) {

@@ -62,7 +62,7 @@ Vue.component('c-dataTable', {
                 <v-card-actions>
                   <v-spacer></v-spacer>
                   <v-btn color="blue darken-1" text @click="closeDialog">Close</v-btn>
-                  <v-btn color="blue darken-1" text @click="saveData">Save</v-btn>
+                  <v-btn color="blue darken-1" text @click="submitForm">Save</v-btn>
                 </v-card-actions>
 
               </v-card>
@@ -79,13 +79,13 @@ Vue.component('c-dataTable', {
           </thead>
           
           <tbody>
-            <tr :key="contact.telephone" v-for="(contact, index) in savedContacts">
+            <tr :key="contact.telephone" v-for="(contact, index) in readContactData">
             
-              <td :key="index" v-for="(tdValue, index) of contact" v-row-blue="changeRowColor(contact.telephone)">
+              <td :key="index" v-for="(tdValue, index) of contact" v-row-blue="changeTableRowColor(contact.telephone)">
                 {{tdValue}}
               </td>
 
-              <td v-row-blue="changeRowColor(contact.telephone)"> 
+              <td v-row-blue="changeTableRowColor(contact.telephone)"> 
                 <v-icon                                         
                   small
                   class="mr-1"
@@ -97,7 +97,7 @@ Vue.component('c-dataTable', {
         
                 <v-icon
                   small
-                  @click="removeContact(index)"
+                  @click="removeRowTable(index)"
                 >
                   mdi-delete
                 </v-icon>
@@ -125,7 +125,7 @@ Vue.component('c-dataTable', {
         telephone: ''
       },
       rules: {
-        nameRule: [ v => this.stringValidator(v, /^((\b[A-zÀ-ú']{3,40}\b)\s*){2,}$/g) || "Seu nome deve conter o mínimo de duas palavras com 3 letras cada!" ],
+        nameRule: [ v => this.stringValidator(v, /^((\b[A-zÀ-ú']{3,40}\b)\s*){2,}$/g) || "Seu nome deve conter o mínimo de duas palavras e pelo menos 3 letras cada (nome ou sobrenome)!" ],
         telephoneRule: [ v => this.stringValidator(v, /^\([0-9]{2}\) [0-9]?[0-9]{4}-[0-9]{4}$/) || "Seu telefone de ser no seguinte formato: (##) (#####-####)"]
       },
       masks: {
@@ -136,18 +136,26 @@ Vue.component('c-dataTable', {
         'Nome',
         'Telefone',
         'Ações'
-      ],
-      savedContacts: []
+      ]
     }
   },
+
+  mixins: [ stringValidators ],
 
   computed: {
     dialogTitle: function() { 
       return this.isEditingData.value ? 'Dados para editar contato' : 'Dados para novo contato'
-    }
+    },
+
+    ...Vuex.mapGetters([ 'readContactData' ])
   },
 
   methods: {
+    ...Vuex.mapActions([ 
+      'includeContactData', 
+      'updateContactData', 
+      'deleteContactData' 
+    ]),
 
     registerContact() {
       this.dialog = true;
@@ -161,17 +169,17 @@ Vue.component('c-dataTable', {
       return this.dialog = false;
     },
 
-    validateDatas() {
+    validateForm() {
       return this.$refs.form.validate()
     },
 
-    saveData() {
-      if(this.validateDatas()){
+    submitForm() {
+      if(this.validateForm()){
 
         if(this.isEditingData.value) { 
-          this.savedContacts.splice(this.isEditingData.index, 1, {...this.contactData});
+          this.updateContactData({index: this.isEditingData.index, data: this.contactData});
         } else {
-          this.savedContacts.push({...this.contactData});
+          this.includeContactData({...this.contactData});
         }
 
         this.closeDialog()
@@ -180,15 +188,15 @@ Vue.component('c-dataTable', {
 
     editRowTable(index) {
       this.dialog = true;
-      this.contactData = {...this.savedContacts[index]}
+      this.contactData = {...this.readContactData[index]}
       return this.isEditingData = {
         value: true,
         index
       }
     },
 
-    removeContact(index) {
-      this.savedContacts.splice(index, 1);
+    removeRowTable(index) {
+      this.deleteContactData(index);
     },
 
     clearForm() {
@@ -198,22 +206,9 @@ Vue.component('c-dataTable', {
       }
     },
 
-    changeRowColor(verifiedValue){
+    changeTableRowColor(verifiedValue){
       let isChange = this.dddValidator(verifiedValue, '(11)');
       return isChange ? true : false;
-    },
-
-    stringValidator(string, regex){
-      let str = string;
-      return ( str.search(regex) === -1 ) ? false : true
-    },
-
-    dddValidator(compared, comparator) {
-      if (!this.stringValidator(compared, /\(\d{2}\)/g)) return false
-
-      let regexp = new RegExp(/\(\d{2}\)/g);
-      let dddValue = regexp.exec(compared)[0];
-      return dddValue === comparator ? true : false 
     }
   }
 
