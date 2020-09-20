@@ -159,14 +159,14 @@ Vue.component('c-dataTable', {
 
     registerContact() {
       this.dialog = true;
-      return this.isRegisterData = true;
+      return this.isRegisterData = true
     },
 
     closeDialog() { 
       this.isRegisterData = false;
       this.isEditingData.value = false;
       this.clearForm();
-      return this.dialog = false;
+      return this.dialog = false
     },
 
     validateForm() {
@@ -184,6 +184,8 @@ Vue.component('c-dataTable', {
 
         this.closeDialog()
       }
+
+      return
     },
 
     editRowTable(index) {
@@ -196,11 +198,11 @@ Vue.component('c-dataTable', {
     },
 
     removeRowTable(index) {
-      this.deleteContactData(index);
+      return this.deleteContactData(index)
     },
 
     clearForm() {
-      this.contactData = {
+      return this.contactData = {
         name: '',
         telephone: ''
       }
@@ -208,7 +210,7 @@ Vue.component('c-dataTable', {
 
     changeTableRowColor(verifiedValue){
       let isChange = this.dddValidator(verifiedValue, '(11)');
-      return isChange ? true : false;
+      return isChange ? true : false
     }
   }
 
